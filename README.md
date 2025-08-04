@@ -76,6 +76,8 @@
 - 提交问题（Issue）：报告错误、提出改进建议等。
 - 提交拉取请求（PR）：修复错误、优化代码、增加新功能等。
 
+## 贡献人
+ - [Starstream](https://github.com/idonthaveaaname)
 ## 联系方式
 - 作者：tianyuzpr
 - 日期：2025-08-02
