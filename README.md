@@ -92,5 +92,5 @@
 ## 贡献人
  - [Starstream](https://github.com/idonthaveaaname)
 ## 联系方式
-- 作者：tianyuzpr
-- 日期：2025-08-02
+- 作者：CR400AF-C-2214
+- 日期：2025-08-05
