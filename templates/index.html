@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta name="keywords" content="三国杀,牌堆管理,程序">
+    <meta name="author" content="CR400AF-C-2214">
+    <meta name="copyright" content="CR400AF-C-2214">
+    <!--这段head是我抄的@wyf9的sleepy-->
+    <!--项目见：https://github.com/sleepy-project/sleepy -->
+    <!--谢谢@wyf9-->
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>三国杀牌堆管理程序</title>
+    <meta name="description" content="一个简单的三国杀牌堆管理程序">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="icon" href="static/logo.ico">
+    <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+    <style>
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: -1;
+            background: url('https://imgapi.siiway.top/image') no-repeat center center; /* 背景图片 使用siiway图片api */
+            background-size: cover; 
+            will-change: transform; /* ai让我加上这两行 汗 */
+            transform: translateZ(0); /* Safari 强制开启 GPU 合成，防抖动 */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+    <div class="card light" id="tools">
+        <div class="tools">
+            <label for="deck_type">选择牌堆类型：</label>
+            <select id="deck_type" style="margin-right: 10px;">
+                <option value="sf">sf - 身份牌堆</option>
+                <option value="sfn">sfn - 身份牌堆（有木牛）</option>
+                <option value="gz">gz - 国战牌堆</option>
+                <option value="qz">qz - 神荀彧牌堆</option>
+                <option value="qzn">qzn - 神荀彧牌堆（有木牛）</option>
+            </select>
+            <button id="shuffle">洗牌</button>
+            <button id="draw">抽牌</button>
+            <button id="show">展示牌</button>
+            <button id="change_deck">切换牌堆</button>
+        </div>
+    </div>
+        <div id="output" style="display: flex; justify-content: center; align-items: center;">
+            <textarea id="output_text" rows="10" cols="50" readonly style="text-align: center;"></textarea>
+        </div>
+    </div>
+    <script>
+    $(document).ready(function() {
+        $('#shuffle').click(function() {
+            $.post('/shuffle', function(data) {
+                $('#output_text').val($('#output_text').val() + '\n牌堆已重新洗牌');
+            });
+        });
+
+        $('#draw').click(function() {
+            let num_cards = prompt('请输入抽取牌的数量:');
+            if (num_cards && !isNaN(num_cards) && parseInt(num_cards) > 0) {
+                $.post('/draw', { num_cards: num_cards }, function(data) {
+                    if (data && data.length > 0) {
+                        $('#output_text').val($('#output_text').val() + '\n抽取的牌: ' + data.join(', '));
+                    } else {
+                        $('#output_text').val($('#output_text').val() + '\n没有抽取到牌，请检查牌堆数量或重新洗牌');
+                    }
+                });
+            } else {
+                alert('请输入一个有效的正整数！');
+            }
+        });
+
+        $('#show').click(function() {
+            let num_cards = prompt('请输入展示牌的数量:');
+            if (num_cards && !isNaN(num_cards) && parseInt(num_cards) > 0) {
+                $.post('/show', { num_cards: num_cards }, function(data) {
+                    if (data && data.length > 0) {
+                        $('#output_text').val($('#output_text').val() + '\n展示的牌: ' + data.join(', '));
+                    } else {
+                        $('#output_text').val($('#output_text').val() + '\n没有展示到牌，请检查牌堆数量');
+                    }
+                });
+            } else {
+                alert('请输入一个有效的正整数！');
+            }
+        });
+
+        $('#change_deck').click(function() {
+            let deck_type = $('#deck_type').val();
+            if (deck_type) {
+                $.post('/change_deck', { deck_type: deck_type }, function(data) {
+                    $('#output_text').val($('#output_text').val() + '\n牌堆已切换');
+                });
+            } else {
+                alert('请选择一个牌堆类型！');
+            }
+        });
+    });
+    </script>
+
+</body>
+</html>

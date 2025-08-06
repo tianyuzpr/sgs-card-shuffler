@@ -26,9 +26,24 @@ pip install -r requirements.txt
 ## 问题出现的版本
 ## 详细的bash输出
 ```
+
 ## 启动
- - 直接运行main.py
-```bash
-python main.py
+ - 直接运行`start.py`
+ - Windows
+```cmd
+python start.py
 ```
- - 简易启动器（未完成）
+ - Linux
+```bash
+python3 start.py
+```
+ - 简易启动器
+ - 运行`启动脚本`
+ - Windows
+```cmd
+start.bat
+```
+ - Linux
+```bash
+./shart.sh
+```

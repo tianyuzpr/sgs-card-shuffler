@@ -1,11 +1,10 @@
 import random
-import tkinter as tk
 from datetime import datetime
 import builtins as bu
+import sys
 from app import *
 import utils
-import sys
-from tkinter import simpledialog
+import env
 
 """
 开始之前先叠个藤甲（不是）
@@ -26,6 +25,18 @@ level: 日志级别
 by @CR400AF-C-2214 2025-08-02
 """
 
+# 检查env
+if not os.path.exists("env.env"):
+    utils.log("ENV File not found", 1)
+    utils.log("please set the ENV File", 1)
+    sys.exit(1)
+
+def env():
+    import env
+    # 导入env.env
+    env.load_env()
+    return env
+
 # 定义print函数
 _print_ = print
 def print(msg: str, **kwargs):
@@ -35,11 +46,11 @@ def print(msg: str, **kwargs):
     '''
     msg = str(msg).replace('\u200b', '')
     try:
-        utils.text.insert(tk.END, msg + '\n')
+        _print_(msg, **kwargs)
     except Exception as e:
         _print_(f"print函数异常: {e}", file=sys.stderr)
     
-# 定义input函数,改为tk输入弹窗
+# 定义input函数
 _input_ = input
 def input(prompt: str = "", type: str = "str") -> str:
     '''
@@ -48,64 +59,67 @@ def input(prompt: str = "", type: str = "str") -> str:
     '''
     try:
         if type == "int":
-            return tk.simpledialog.askinteger("输入", prompt)
+            return int(_input_(prompt))
         elif type == "float":
-            return tk.simpledialog.askfloat("输入", prompt)
+            return float(_input_(prompt))
         elif type == "bool":
-            return tk.simpledialog.askyesno("确认", prompt)
+            return _input_(prompt).lower() in ["yes", "y", "true"]
         elif type == "str":
-            return tk.simpledialog.askstring("输入", prompt)
+            return _input_(prompt)
         else:
             _print_("input函数异常: type参数错误", file=sys.stderr)
             return None
     except Exception as e:
         _print_(f"input函数异常: {e}", file=sys.stderr)
     return None
-def root():
-    global text, window  # 声明全局变量
-    utils.window = tk.Tk()
-    utils.window.title("三国杀牌堆管理程序")
-    utils.window.geometry("800x600")
-    # 输出，通过修改后的print
-    utils.text = tk.Text(utils.window, wrap=tk.WORD, width=750, height=550)
-    utils.text.pack(side=tk.RIGHT)
-    # 添加UI - 将所有UI创建代码移到mainloop之前
-    frame = tk.Frame(utils.window)
-    frame.pack()
-    
-    # 创建菜单并配置到窗口上
-    menu = tk.Menu(utils.window)  # 创建菜单，绑定到窗口
-    utils.window.config(menu=menu)  # 将菜单配置到窗口上
-    
+
+def main():
     # 初始化牌堆
     initialize_deck()
 
-    # 定义菜单
-    card_menu = tk.Menu(menu, tearoff=0)
-    menu.add_cascade(label="牌操作", menu=card_menu)
-    card_menu.add_command(label="抽取牌", command=lambda: draw_card(input("请输入抽取牌的数量:", "int"), utils.text))   # 通过弹窗输入
-    card_menu.add_command(label="展示牌", command=lambda: show_card(input("请输入展示牌的数量:", "int"), utils.text))  # 通过弹窗输入
-    card_menu.add_command(label="重新洗牌", command=lambda: shuffle_deck(utils.text))
-    card_menu.add_separator()
-    card_menu.add_command(label="退出", command=utils.window.destroy)
-    
-    kazu_menu = tk.Menu(menu, tearoff=0)
-    menu.add_cascade(label="切换牌堆", menu=kazu_menu)
-    kazu_menu.add_command(label="身份牌堆", command=lambda: card("sf"))
-    kazu_menu.add_command(label="身份牌堆(有木牛)", command=lambda: card("sfn"))
-    kazu_menu.add_command(label="国战牌堆", command=lambda: card("gz"))
-    kazu_menu.add_command(label="神荀彧牌堆", command=lambda: card("qz"))
-    kazu_menu.add_command(label="神荀彧牌堆(有木牛)", command=lambda: card("qzn"))
-    # ————————————————
-    utils.window.protocol('WM_DELETE_WINDOW', sys.exit)  # 点击X按钮时调用sys.exit()
-    
-    tk.messagebox.showwarning(title='提示', message='请关闭标题为tk的窗口')
-    # 将mainloop移到所有UI创建完成后
-    utils.window.mainloop()
-    # —————————————————
-    # 我甚至不知道这段代码是怎么跑起来的 @CR400AF-C-2214 25-8-3
+    while True:
+        print("\n请选择操作：")
+        print("1. 抽取牌")
+        print("2. 展示牌")
+        print("3. 重新洗牌")
+        print("4. 切换牌堆")
+        print("5. 退出")
+        choice = input("请输入选项编号：", "int")
+        
+        if choice == 1:
+            num_cards = input("请输入抽取牌的数量:", "int")
+            draw_card(num_cards, print)
+        elif choice == 2:
+            num_cards = input("请输入展示牌的数量:", "int")
+            show_card(num_cards, print)
+        elif choice == 3:
+            shuffle_deck(print)
+        elif choice == 4:
+            print("\n请选择牌堆类型：")
+            print("1. sf - 身份牌堆")
+            print("2. sfn - 身份牌堆（有木牛）")
+            print("3. qz - 神荀彧牌堆")
+            print("4. qzn - 神荀彧牌堆（有木牛）")
+            print("5. gz - 国战牌堆")
+            deck_choice = input("请输入选项编号：", "int")
+            if deck_choice == 1:
+                card(1)
+            elif deck_choice == 2:
+                card(2)
+            elif deck_choice == 3:
+                card(3)
+            elif deck_choice == 4:
+                card(4)
+            elif deck_choice == 5:
+                card(5)
+            else:
+                print("无效的选项，请重新输入。")
+        elif choice == 5:
+            print("程序已退出。")
+            break
+        else:
+            print("无效的选项，请重新输入。")
 
 if __name__ == "__main__":
-    # 启动主界面
-    root()
-    exit()
+    # 启动主程序
+    main()
